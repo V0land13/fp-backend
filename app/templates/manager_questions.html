@@ -1,0 +1,38 @@
+{% extends "base-tpl.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-10">
+            {% if questions %}
+            <table class="table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">ID</th>
+                        <th scope="col">Вопрос</th>
+                        <th scope="col">Менеджер</th>
+                        <th scope="col">Управление</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for q in questions %}
+                    <tr>
+                        <th scope="row">{{ q.id }}</th>
+                        <td>{{ q.text }}</td>
+                        <td>{{ q.manager }}</td>
+                        <td>
+                            <a class="btn btn-success btn-sm" href="{{ url_for('edit_question', q_id=q.id) }}" role="button">Править</a>
+                            <a class="btn btn-danger btn-sm" href="{{ url_for('dell_question', q_id=q.id) }}" role="button">Удалить</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="alert alert-warning" role="alert">
+                У вас пока нет вопросов
+            </div>
+            {% endif %}
+        </div>
+        {% include 'manager-menu.html' %}
+    </div>
+{% endblock %}
