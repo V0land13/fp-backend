@@ -1,0 +1,38 @@
+{% extends "base-tpl.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-10">
+            {% if qls %}
+            <table class="table">
+                <thead class="thead-dark">
+                    <tr>
+                        <th scope="col">Опрос</th>
+                        <th scope="col">Сроки</th>
+                        <th scope="col">Управление</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for ql in qls %}
+                    <tr>
+                        <td>{{ ql.name }}</td>
+                        <td>{{ ql.start_date.strftime('%Y-%m-%d') }} / {{ ql.end_date.strftime('%Y-%m-%d') }}</td>
+                        <td>
+                            <a class="btn btn-info btn-sm" href="{{ url_for('manage_qlist', id=ql.id) }}" role="button">Просмотреть</a>
+                            <a class="btn btn-danger btn-sm" href="{{ url_for('ql_dellete', id=ql.id) }}" role="button">Удалить</a>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+            {% else %}
+            <div class="alert alert-warning" role="alert">
+                У вас пока нет опросов
+            </div>
+            {% endif %}
+
+
+        </div>
+        {% include 'manager-menu.html' %}
+    </div>
+{% endblock %}

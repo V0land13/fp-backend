@@ -1,0 +1,37 @@
+{% extends "base-tpl.html" %}
+
+{% block content %}
+    <h3>Опрос: {{ ql.name }}</h3>
+    <p class="border border-secondary rounded-top bg-light p-2 mb-3">{{ ql.description }}</p>
+
+    <form class="mb-3" method="post">
+    {% for q in ql.questions %}
+        <div class="border border-secondary rounded bg-light mb-3 mt-3 p-2">
+            <h6>{{ q.text }}</h6>
+            {% if q.single_answer %}
+                {% for a in q.answers %}
+                <div class="form-check">
+                    <input class="form-check-input" type="radio" name="{{ q.id }}" id="q{{ q.id }}-{{ a.id }}" value="{{ a.id }}">
+                    <label class="form-check-label" for="q{{ q.id }}-{{ a.id }}">
+                        {{ a.text }}
+                    </label>
+                </div>
+                {% endfor %}
+
+            {% else %}
+                {% for a in q.answers %}
+                <div class="form-check">
+                    <input class="form-check-input" type="checkbox" name="{{ a.id }}" id="q{{ q.id }}-{{ a.id }}">
+                    <label class="form-check-label" for="q{{ q.id }}-{{ a.id }}">
+                        {{ a.text }}
+                    </label>
+                </div>
+                {% endfor %}
+            {% endif %}
+        </div>
+    {% endfor %}
+        <button type="submit" class="btn btn-success">Готово</button>
+    </form>
+
+
+{% endblock %}

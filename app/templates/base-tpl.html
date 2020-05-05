@@ -23,18 +23,21 @@
                 </div>
                 <div class="d-inline-flex">
                     {% block links %}
-                    <a class="nav-link text-light" href="{{ url_for('home') }}">Home</a>
+                    <a class="nav-link text-light" href="{{ url_for('backoffice') }}">Home</a>
                     <a class="nav-link text-light" href="#">Link</a>
                     <a class="nav-link text-light" href="#">Link</a>
-                    {% if user_name %}
-                    <a class="nav-link text-light" href="#">Личный кабинет</a>
+                    {% if current_user.has_role('manager') %}
+                    <a class="nav-link text-light" href="{{ url_for('manage_questions') }}">Кабинет менеджера</a>
+                    {% endif %}
+                    {% if current_user.has_role('admin') %}
+                    <a class="nav-link text-light" href="{{ url_for('admin.index') }}">Админка</a>
                     {% endif %}
                     {% endblock %}
                 </div>
                 <div class="d-inline-flex">
-                    {% if user_name %}
+                    {% if current_user %}
                     <p class="navbar-text">
-                        {{ user_name }}
+                        {{ user }}
                     </p>
                     <a class="nav-link text-light" href="{{ url_for('security.logout') }}">Logout</a>
                     {% else %}
@@ -46,10 +49,14 @@
         </header>
         <!-- content -->
         <main class="container" style="margin-top: 20px">
-            {% with messages = get_flashed_messages() %}
+            {% with messages = get_flashed_messages(with_categories=true) %}
                 {% if messages %}
-                    {% for message in messages %}
+                    {% for category, message in messages %}
+                    {% if category == 'error'%}
+                    <div class="alert alert-danger" role="alert">
+                    {% else %}
                     <div class="alert alert-dark" role="alert">
+                    {% endif %}>
                         {{ message }}
                     </div>
                     {% endfor %}
@@ -70,5 +77,6 @@
 <script src="https://code.jquery.com/jquery-3.4.1.slim.min.js" integrity="sha384-J6qa4849blE2+poT4WnyKhv5vZF5SrPo0iEjwBvKU7imGFAV0wwj1yYfoRSJoZ+n" crossorigin="anonymous"></script>
 <script src="https://cdn.jsdelivr.net/npm/popper.js@1.16.0/dist/umd/popper.min.js" integrity="sha384-Q6E9RHvbIyZFJoft+2mJbHaEWldlvI9IOYy5n3zV9zzTtmI3UksdQRVvoxMfooAo" crossorigin="anonymous"></script>
 <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/js/bootstrap.min.js" integrity="sha384-wfSDF2E50Y2D1uUdj0O3uMBJnjuUD4Ih7YwaYd1iqfktj0Uod8GCExl3Og8ifwB6" crossorigin="anonymous"></script>
+{% block jsscripts %}{% endblock %}
 </body>
 </html>

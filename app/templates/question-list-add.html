@@ -1,0 +1,92 @@
+{% extends "base-tpl.html" %}
+
+{% block content %}
+    <div class="row">
+        <div class="col-sm-10">
+            <h2>Новый лист опроса</h2>
+
+            <form method="post">
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="QLname">Название опроса</label>
+                        <input type="text" name="QLname" class="form-control" placeholder="Введите название опроса" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="QLtext">Описание опроса</label>
+                        <textarea name="QLtext" class="form-control" required>Описание опроса</textarea>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="start_date">Когда начать опрос</label>
+                        <input type="date" name="start_date" class="form-control" required>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group col-md-12">
+                        <label for="end_date">Когда закончить опрос</label>
+                        <input type="date" name="end_date" class="form-control" required>
+                    </div>
+                </div>
+
+                <div class="form-row">
+                    {% for q in questions %}
+                    <div class="col-sm-auto text-center border rounded bg-light ml-1 mb-3 mr-auto">
+
+                            <div class="form-group form-check-inline bg-info rounded">
+                                <label for="{{ q.id }}">Добавить {{ q.text }}?</label>
+                                <input type="checkbox" id="chboc-q-{{ q.id }}" name="{{ q.id }}" class="form-control" onchange="fun{{ q.id }}()" >
+                            </div>
+                            <fieldset id="fieldset-{{ q.id }}" disabled>
+                                <div class="form-group">
+                                    <div>
+                                        <label for="{{ q.id }}-rate">Балы за вопрос</label>
+                                        <input  name="{{ q.id }}-rate" type="range" class="custom-range" min="0" max="10" id="{{ q.id }}-rate">
+                                    </div>
+                                    <div>
+                                        <label for="{{ q.id }}-time">Время на вопрос в минутах</label>
+                                        <select type="text" name="{{ q.id }}-time" class="form-control" id="{{ q.id }}-time" required>
+                                            <option>1</option>
+                                            <option>3</option>
+                                            <option>5</option>
+                                            <option>8</option>
+                                            <option>10</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </fieldset>
+                    </div>
+
+                    {% endfor %}
+                </div>
+
+                <button type="submit" class="btn btn-primary">Добавить опрос</button>
+            </form>
+
+
+        </div>
+    {% include 'manager-menu.html' %}
+    </div>
+{% endblock %}
+
+{% block jsscripts %}
+    {% for q in questions %}
+    <script type="text/javascript">
+        function fun{{ q.id }}() {
+            var chbox;
+            chbox=document.getElementById('chboc-q-{{ q.id }}');
+            fset=document.getElementById('fieldset-{{ q.id }}')
+            if (chbox.checked) {
+                fset.removeAttribute("disabled")
+                console.log('Выбран вопрос {{ q.id }}');
+            }
+            else {
+                fset.setAttribute("disabled", "disabled")
+                console.log('Не выбран вопрос {{ q.id }}');
+            }
+        }
+    </script>
+    {% endfor %}
+{% endblock %}

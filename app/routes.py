@@ -3,33 +3,10 @@ from flask import jsonify, render_template, flash, redirect, url_for, request
 from flask_security import current_user, login_user, logout_user, login_required
 from flask_security.utils import hash_password
 from werkzeug.urls import url_parse
-from .models import User, Role, Question, Answer
+from .models import *
 from .forms import RegistrationForm
 from .security import user_datastore
 
-###### Общие страницы без прав доступа ######
-@app.route('/')
-def home():
-    try:
-        user = '{} {}'.format(current_user.first_name, current_user.last_name)
-    except:
-        user = 'Гость'
-    users = []
-    roles = []
-    for u in User.query.all():
-        users.append('{} {}'.format(u.first_name, u.last_name))
-    for r in Role.query.all():
-        roles.append('{} - {}'.format(r.name, r.description))
-    return jsonify({'!user': user, 'users': users, 'roles': roles,'SECURITY_REGISTERABLE': app.config.get('SECURITY_REGISTERABLE')})
-
-@app.route('/test')
-@login_required
-def test():
-    user = current_user
-    user_roles = []
-    for r in user.roles:
-        user_roles.append(r.name)
-    return jsonify({'user.email': user.email, 'user.password': user.password, 'user.roles': user_roles})
 
 #User registration
 @app.route('/register', methods=['GET', 'POST'])
@@ -51,38 +28,76 @@ def register():
         return redirect(url_for('security.login'))
     return render_template('register.html', title='Register', form=form)
 
-# Manager funtions
+########## User pages ############
+
+@app.route('/')
+@login_required
+def home():
+    return redirect(url_for('backoffice'))
+
+@app.route('/user')
+@login_required
+def backoffice():
+    user = '{} {}'.format(current_user.first_name, current_user.last_name)
+    available_qls = QuestionList.query.filter(
+        QuestionList.start_date <= datetime.utcnow(),
+        QuestionList.end_date >= datetime.utcnow(),
+    ).all()
+    return render_template('backoffice.html', user=user, available_qls=available_qls)
+
+@app.route('/user/<id>')
+@login_required
+def user(id):
+    user = '{} {}'.format(current_user.first_name, current_user.last_name)
+    this_user = User.query.filter_by(id=id).first_or_404()
+    return render_template('user-profile.html', this_user=this_user, user=user)
+
+@app.route('/user/stat')
+@login_required
+def user_stat():
+    return redirect(url_for('backoffice'))
+
+@app.route('/user/ql/<id>', methods=['GET', 'POST'])
+@login_required
+def user_ql_passing(id):
+    user = '{} {}'.format(current_user.first_name, current_user.last_name)
+    try:
+        ql = QuestionList.query.get(id)
+        ql.id
+    except:
+        flash(u'Опрос не найден', 'error')
+        return redirect(url_for('backoffice'))
+
+    if request.method == 'POST':
+        get_data = request.form.to_dict()
+        print(get_data)
+        flash(u'<Опрос пройден>', 'success')
+        return redirect(url_for('backoffice'))
 
 
 
-#################
-@app.route('/123')
-def p_123():
-    #user = User.query.filter(User.email == 'umqambi@tuta.io').first()
-    #print(user.email)
-    #user_datastore.create_role(name='admin', description='Administrator')
-    #user_datastore.create_role(name='manager', description='can manage questions and question lists')
-    #user_datastore.create_role(name='user', description='basic role')
-    #user_datastore.add_role_to_user(user, Role.query.filter(Role.name == 'admin').first())
-    #user_datastore.add_role_to_user(user, Role.query.filter(Role.name == 'manager').first())
-    #db.session.commit()
-    return 'ok'
+    return render_template('ql-passing.html', user=user, ql=ql)
 
-@app.route('/q-generate')
-def q_gen():
-    import random
-    for i in range(0, 20):
-        new_question = Question(text='Question {}'.format(i), manager=1, single_answer=random.choice([True, False]))
-        db.session.add(new_question)
-        db.session.commit()
-        new_q_id = new_question.id
-        answer1 = Answer(text='Answer 1 for Question {}'.format(i), question=new_q_id)
-        db.session.add(answer1)
-        answer2 = Answer(text='Answer 2 for Question {}'.format(i), question=new_q_id)
-        db.session.add(answer2)
-        answer3 = Answer(text='Answer 3 for Question {}'.format(i), question=new_q_id)
-        db.session.add(answer3)
-        answer4 = Answer(text='Answer 4 for Question {}'.format(i), question=new_q_id)
-        db.session.add(answer4)
-        db.session.commit()
-    return redirect(url_for('manage_questions'))
+
+
+
+
+
+
+######### delete it for prod
+@app.route('/stat')
+def stat():
+    user_roles = []
+    try:
+        user = '{} {}'.format(current_user.first_name, current_user.last_name)
+        for ur in current_user.roles:
+            user_roles.append(ur.name)
+    except:
+        user = 'Гость'
+    users = []
+    roles = []
+    for u in User.query.all():
+        users.append('{} {}'.format(u.first_name, u.last_name))
+    for r in Role.query.all():
+        roles.append('{} - {}'.format(r.name, r.description))
+    return jsonify({'!user': user,'user_roles': user_roles, 'users': users, 'roles': roles,'SECURITY_REGISTERABLE': app.config.get('SECURITY_REGISTERABLE')})

@@ -10,10 +10,10 @@
                     <a class="nav-link" href="#">!!!</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Мои опросы</a>
+                    <a class="nav-link" href="{{ url_for('question_lists_view') }}">Мои опросы</a>
                 </li>
                 <li class="nav-item">
-                    <a class="nav-link" href="#">Добавить опрос</a>
+                    <a class="nav-link" href="{{ url_for('question_list_add') }}">Добавить опрос</a>
                 </li>
             </ul>
         </div>
